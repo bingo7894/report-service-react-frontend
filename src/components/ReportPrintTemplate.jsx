@@ -363,8 +363,10 @@ function renderForm1Content(formData, signatures, sigDateStr, moveClosingSection
               <th style={{ ...styles.checkHeadCell, width: "52%" }}>
                 รายการตรวจสอบ
               </th>
-              <th style={{ ...styles.checkHeadCell, width: "10%" }}></th>
-              <th style={{ ...styles.checkHeadCell, width: "30%" }}>
+              <th
+                colSpan="2"
+                style={{ ...styles.checkHeadCell, width: "40%" }}
+              >
                 ผลการตรวจสอบ
               </th>
             </tr>
