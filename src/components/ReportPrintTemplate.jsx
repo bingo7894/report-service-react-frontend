@@ -359,11 +359,12 @@ function renderForm1Content(formData, signatures, sigDateStr, moveClosingSection
         <table style={styles.checklistTable}>
           <thead>
             <tr>
-              <th style={{ ...styles.checkHeadCell, width: "10%" }}>ข้อ</th>
-              <th style={{ ...styles.checkHeadCell, width: "55%" }}>
+              <th style={{ ...styles.checkHeadCell, width: "8%" }}>ข้อ</th>
+              <th style={{ ...styles.checkHeadCell, width: "52%" }}>
                 รายการตรวจสอบ
               </th>
-              <th style={{ ...styles.checkHeadCell, width: "35%" }}>
+              <th style={{ ...styles.checkHeadCell, width: "10%" }}></th>
+              <th style={{ ...styles.checkHeadCell, width: "30%" }}>
                 ผลการตรวจสอบ
               </th>
             </tr>
@@ -384,8 +385,11 @@ function renderForm1Content(formData, signatures, sigDateStr, moveClosingSection
                     <tr key={item.name}>
                       <td style={styles.checkNoCell}>{item.no}</td>
                       <td style={styles.checkLabelCell}>{item.label}</td>
+                      <td style={{ ...styles.checkResultIconCell, color: statusColor }}>
+                        {getStatusIcon(value)}
+                      </td>
                       <td style={{ ...styles.checkResultTextCell, color: statusColor }}>
-                        {getStatusIcon(value)} {fmt(value)}
+                        {fmt(value)}
                       </td>
                     </tr>
                   );
@@ -811,6 +815,14 @@ const styles = {
     border: `1px solid ${borderColor}`,
     textAlign: "center",
     padding: "3px 6px",
+    fontWeight: 700,
+    verticalAlign: "top",
+  },
+  checkResultIconCell: {
+    border: `1px solid ${borderColor}`,
+    textAlign: "center",
+    padding: "3px 2px",
+    fontSize: "12px",
     fontWeight: 700,
     verticalAlign: "top",
   },
