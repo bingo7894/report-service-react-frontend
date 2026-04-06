@@ -56,7 +56,7 @@ function createInitialFooterDraft() {
   };
 }
 
-export default function ReportPage({ authState, onLogout }) {
+export default function ReportPage({ authState, onLogout, currentPage = "service", onNavigate, children }) {
   const draftKeyUser = authState.user?.email || "guest";
   const [formData, setFormData] = useState(() => {
     const draft = loadReportDraft(draftKeyUser);
@@ -239,59 +239,95 @@ export default function ReportPage({ authState, onLogout }) {
             </button>
             <button
               type="button"
-              className="h-12 w-full rounded-xl bg-primary px-6 text-[15px] font-bold text-white shadow-md transition hover:bg-blue-800"
+              onClick={() => onNavigate?.("service")}
+              className={`h-12 w-full rounded-xl px-6 text-[15px] font-bold text-white shadow-md transition ${
+                currentPage === "service"
+                  ? "bg-primary ring-2 ring-blue-400 ring-offset-1"
+                  : "bg-slate-500 hover:bg-primary"
+              }`}
             >
               Service Report
             </button>
             <button
               type="button"
-              disabled
-              className="h-12 w-full rounded-xl bg-slate-200 px-6 text-[15px] font-bold text-slate-600 shadow-inner transition"
-              title="เมนูยังไม่พร้อมใช้งาน"
+              onClick={() => onNavigate?.("report")}
+              className={`h-12 w-full rounded-xl px-6 text-[15px] font-bold text-white shadow-md transition ${
+                currentPage === "report"
+                  ? "bg-emerald-600 ring-2 ring-emerald-400 ring-offset-1"
+                  : "bg-slate-500 hover:bg-emerald-600"
+              }`}
             >
-              Menu C (Coming soon)
+              Report
             </button>
           </div>
         </div>
 
-        {/* Form Selection Box */}
-        <div className="flex flex-col items-start gap-4 rounded-2xl border border-slate-300 bg-white px-6 py-5 font-semibold text-primary shadow-sm md:flex-row md:items-center md:px-8">
-          <label className="text-[16px]">
-            <i className="fas fa-layer-group"></i> เลือกแบบฟอร์ม:
-          </label>
-          <select
-            name="formType"
-            value={formData.formType}
-            onChange={handleChange}
-            className="w-full max-w-[320px] rounded-xl border border-blue-300 bg-white px-5 py-3 text-base font-sarabun font-semibold text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100"
-          >
-            <option value="form1">1.1 แบบตรวจสอบอาคาร</option>
-            <option value="form2">1.2 แบบงานบริการทั่วไป</option>
-          </select>
-        </div>
+        {/* Form Selection Box — show only on service page */}
+        {currentPage === "service" && (
+          <div className="flex flex-col items-start gap-4 rounded-2xl border border-slate-300 bg-white px-6 py-5 font-semibold text-primary shadow-sm md:flex-row md:items-center md:px-8">
+            <label className="text-[16px]">
+              <i className="fas fa-layer-group"></i> เลือกแบบฟอร์ม:
+            </label>
+            <select
+              name="formType"
+              value={formData.formType}
+              onChange={handleChange}
+              className="w-full max-w-[320px] rounded-xl border border-blue-300 bg-white px-5 py-3 text-base font-sarabun font-semibold text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-blue-100"
+            >
+              <option value="form1">1.1 แบบตรวจสอบอาคาร</option>
+              <option value="form2">1.2 แบบงานบริการทั่วไป</option>
+            </select>
+          </div>
+        )}
       </header>
 
-      <main className="print:hidden">
-        {formData.formType === "form1" ? (
-          <>
-            <BuildingInspectionGeneralInfo
-              formData={formData}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
-              validationErrors={validationErrors}
-            />
-            <BuildingChecklistForm
-              formData={formData}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
-              validationErrors={validationErrors}
-            />
-            <div className="mt-6">
+      {/* Report page (Inspection Report) — rendered via children from App.jsx */}
+      {currentPage === "report" ? (
+        <main className="print:hidden">{children}</main>
+      ) : (
+        <main className="print:hidden">
+          {formData.formType === "form1" ? (
+            <>
+              <BuildingInspectionGeneralInfo
+                formData={formData}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                validationErrors={validationErrors}
+              />
+              <BuildingChecklistForm
+                formData={formData}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                validationErrors={validationErrors}
+              />
+              <div className="mt-6">
+                <ReportFooter
+                  formData={formData}
+                  handleChange={handleChange}
+                  footerDraft={footerDraft}
+                  setFooterDraft={setFooterDraft}
+                  authToken={authState.token}
+                  onUnauthorized={onLogout}
+                  onResetForm={handleResetForm}
+                  validationErrors={validationErrors}
+                  setValidationErrors={setValidationErrors}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="space-y-6">
+              <GeneralServiceForm
+                formData={formData}
+                handleChange={handleChange}
+                handleBlur={handleBlur}
+                validationErrors={validationErrors}
+              />
               <ReportFooter
                 formData={formData}
                 handleChange={handleChange}
                 footerDraft={footerDraft}
                 setFooterDraft={setFooterDraft}
+                variant="form2"
                 authToken={authState.token}
                 onUnauthorized={onLogout}
                 onResetForm={handleResetForm}
@@ -299,30 +335,9 @@ export default function ReportPage({ authState, onLogout }) {
                 setValidationErrors={setValidationErrors}
               />
             </div>
-          </>
-        ) : (
-          <div className="space-y-6">
-            <GeneralServiceForm
-              formData={formData}
-              handleChange={handleChange}
-              handleBlur={handleBlur}
-              validationErrors={validationErrors}
-            />
-            <ReportFooter
-              formData={formData}
-              handleChange={handleChange}
-              footerDraft={footerDraft}
-              setFooterDraft={setFooterDraft}
-              variant="form2"
-              authToken={authState.token}
-              onUnauthorized={onLogout}
-              onResetForm={handleResetForm}
-              validationErrors={validationErrors}
-              setValidationErrors={setValidationErrors}
-            />
-          </div>
-        )}
-      </main>
+          )}
+        </main>
+      )}
     </div>
   );
 }
